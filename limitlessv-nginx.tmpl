@@ -1,1 +1,90 @@
+  
+###################################################################################################
+# wp-limitlessv-nginx-cache
+#
+# wp-limitlessv-nginx-cache is a NGINX configuration to speedup your WordPress
+# website with or without cache plugin will benefit from it
+#
+# Author: Shmuel Maruani
+# URL: https://github.com/LimitlessVirtue/wp-limitlessv-nginx-cache/
+#
+# Tested with:
+# - Clean no Cache plugin
+# - WP Super Cache
+# - W3 Total Cache
+# - WP Fastest Cache
+# - Autoptimize
+# - WP-Optimize
+# [WordPress NGINX](https://bitnami.com/stack/wordpress-pro)
+#
+# Version 2.1.1
+#
+###################################################################################################
 
+###################################################################################################
+# PAGE CACHE
+
+set $cache_uri $request_uri;
+
+# POST requests and urls with a query string should always go to PHP
+if ($request_method = POST) {
+    set $cache_uri 'null cache';
+}
+if ($query_string != "") {
+    set $cache_uri 'null cache';
+}
+
+# Don't cache uris containing the following segments
+if ($request_uri ~* "(/wp-admin/|/xmlrpc.php|/wp-(app|cron|login|register|mail).php
+                      |wp-.*.php|/feed/|index.php|wp-comments-popup.php
+                      |wp-links-opml.php|wp-locations.php |sitemap(_index)?.xml
+                      |[a-z0-9_-]+-sitemap([0-9]+)?.xml)") {
+
+    set $cache_uri 'null cache';
+}
+
+# Don't use the cache for logged-in users or recent commenters
+if ($http_cookie ~* "comment_author|wordpress_[a-f0-9]+
+                     |wp-postpass|wordpress_logged_in") {
+    set $cache_uri 'null cache';
+}
+
+###################################################################################################
+# BROWSER The Web Open Font Format  CACHE
+#
+location ~* \.(?:woff|woff2)$ {
+	etag on;
+	gzip_vary on;
+	expires 30d;
+  add_header Cache-Control "public";
+}
+
+###################################################################################################
+# BROWSER ico|cur CACHE
+#
+location ~* .(ico|cur)$ {
+	etag on;
+	gzip_vary on;
+	expires 30d;
+  add_header Cache-Control "public";
+}
+###################################################################################################
+# BROWSER jpg|jpeg|gif|png|gz|svg|svgz|mp4|ogg|ogv|webm|htc CACHE
+#
+location ~* \.(?:jpg|jpeg|gif|png|gz|svg|svgz|mp4|ogg|ogv|webm|htc)$ {
+	etag on;
+	gzip_vary on;
+	expires 2M;
+  add_header Cache-Control "public";
+}
+
+location ~*  \.(?:pdf|swf)$ {
+    expires 2d;
+    add_header Cache-Control "public";
+}
+
+# CSS and Javascript
+location ~* \.(?:css|js)$ {
+    expires 1d;
+    add_header Cache-Control "public";
+}
