@@ -1,28 +1,22 @@
-  
 ###################################################################################################
-# wp-limitlessv-nginx-cache
-#
-# wp-limitlessv-nginx-cache is a NGINX configuration to speedup your WordPress
-# website with or without cache plugin will benefit from it
+# wp-limitlessv-nginx-cache:
+# Is a NGINX configuration to speedup your WordPress
+# website with or without cache plugin will benefit from it.
 #
 # Author: Shmuel Maruani
-# URL: https://github.com/LimitlessVirtue/wp-limitlessv-nginx-cache/
+# URL:    https://github.com/LimitlessVirtue/wp-limitlessv-nginx-cache/
 #
 # Tested with:
 # - Clean no Cache plugin
 # - WP Super Cache
 # - W3 Total Cache
 # - WP Fastest Cache
-# - Autoptimize
 # - WP-Optimize
+# - Autoptimize
 # [WordPress NGINX](https://bitnami.com/stack/wordpress-pro)
-#
-# Version 2.1.1
-#
 ###################################################################################################
-
+#  Version 0.0.1
 ###################################################################################################
-# PAGE CACHE
 
 set $cache_uri $request_uri;
 
@@ -50,41 +44,128 @@ if ($http_cookie ~* "comment_author|wordpress_[a-f0-9]+
 }
 
 ###################################################################################################
-# BROWSER The Web Open Font Format  CACHE
+# BROWSER CACHE: fonts
 #
 location ~* \.(?:woff|woff2)$ {
-	etag on;
-	gzip_vary on;
-	expires 30d;
-  add_header Cache-Control "public";
-}
+    etag on;
+    gzip_vary on;
+    expires 3M;
+	add_header Cache-Control "public";
+    # add_header Cache-Control "public, includeSubDomains";
 
-###################################################################################################
-# BROWSER ico|cur CACHE
-#
-location ~* .(ico|cur)$ {
-	etag on;
-	gzip_vary on;
-	expires 30d;
-  add_header Cache-Control "public";
 }
 ###################################################################################################
-# BROWSER jpg|jpeg|gif|png|gz|svg|svgz|mp4|ogg|ogv|webm|htc CACHE
+# BROWSER CACHE: audio
 #
-location ~* \.(?:jpg|jpeg|gif|png|gz|svg|svgz|mp4|ogg|ogv|webm|htc)$ {
-	etag on;
-	gzip_vary on;
-	expires 2M;
-  add_header Cache-Control "public";
+location ~* \.(?:mp3|ra|oga)$ {
+    etag on;
+    gzip_vary on;
+    expires 4M;
+	add_header Cache-Control "public";
+    # add_header Cache-Control "public, includeSubDomains";
 }
-
-location ~*  \.(?:pdf|swf)$ {
-    expires 2d;
-    add_header Cache-Control "public";
+###################################################################################################
+# BROWSER CACHE: video
+#
+location ~* \.(?:mpeg|mpg|mov|flv|avi|wmv|asx|asf|mng|ogv)$ {
+    etag on;
+    gzip_vary on;
+    expires 4M;
+	add_header Cache-Control "public";
+    # add_header Cache-Control "public, includeSubDomains";
+    # add_header Vary "Accept-Encoding, Cookie";
 }
-
-# CSS and Javascript
-location ~* \.(?:css|js)$ {
+###################################################################################################
+# BROWSER CACHE: images
+#
+location ~* \.(?:wbmp|jng|ico|png|jpeg|jpg|gif|cur)$ {
+    etag on;
+    gzip_vary on;
+    expires 2M;
+	add_header Cache-Control "public";
+    # add_header Cache-Control "public, includeSubDomains";
+    # add_header Vary "Accept-Encoding, Cookie";
+}
+###################################################################################################
+# BROWSER CACHE: others
+#
+location ~* \.(?:swf|ogx|pdf)$ {
+    etag on;
+    gzip_vary on;
+    expires 2M;
+	add_header Cache-Control "public";
+    # add_header Cache-Control "public, includeSubDomains";
+    # add_header Vary "Accept-Encoding, Cookie";
+}
+###################################################################################################
+# BROWSER CACHE: text
+#
+location ~* \.(?:xml|txt|rss|htc|mml)$ {
+    etag on;
+    gzip_vary on;
     expires 1d;
-    add_header Cache-Control "public";
+	add_header Cache-Control "public";
+    # add_header Cache-Control "public, includeSubDomains";
+    # add_header Vary "Accept-Encoding, Cookie";
 }
+###################################################################################################
+# BROWSER CACHE: text/htm
+#
+location ~* \.(?:html|htm|shtml)$ {
+    etag on;
+    gzip_vary on;
+    expires 1d;
+	add_header Cache-Control "public";
+    # add_header Cache-Control "public, includeSubDomains";
+    # add_header Vary "Accept-Encoding, Cookie";
+}
+###################################################################################################
+# BROWSER CACHE: text/style
+#
+location ~* \.css$ {
+    etag on;
+    gzip_vary on;
+    expires 1d;
+	add_header Cache-Control "public";
+    # add_header Cache-Control "public, includeSubDomains";
+    # add_header Vary "Accept-Encoding, Cookie";
+}
+###################################################################################################
+# BROWSER CACHE: text/js
+#
+location ~* \.js$ {
+    etag on;
+    gzip_vary on;
+    expires 1d;
+	add_header Cache-Control "public";
+    # add_header Cache-Control "public, includeSubDomains";
+    # add_header Vary "Accept-Encoding, Cookie";
+}
+
+###################################################################################################
+## This section, design to adding specific parameters base on the WordPress cache plugin.
+###################################################################################################
+	location ~* /wp-content/cache/autoptimize/.*html$ {
+		etag on;
+		gzip_vary on;
+		add_header Cache-Control "no-cache, no-store, must-revalidate";
+	}
+	#############
+	location ~* /wp-content/cache/autoptimize/css/.*css$ {
+		etag on;
+		gzip_vary on;
+		expires 7d;
+	    add_header Cache-Control "public, includeSubDomains";
+		# add_header Cache-Control "public, includeSubDomains; preload";
+		# add_header Cache-Control "public";
+	}
+	#############
+	location ~* /wp-content/cache/autoptimize/js/.*js$ {
+		etag on;
+		gzip_vary on;
+		expires 7d;
+	    add_header Cache-Control "public, includeSubDomains";
+		# add_header Cache-Control "public, includeSubDomains; preload";
+		# add_header Cache-Control "public";
+	}
+
